@@ -1,0 +1,35 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "qemu-kernel-gdb",
+      "type": "cppdbg",
+      "request": "launch",
+      "miDebuggerPath": "/usr/bin/gdb-multiarch",
+      "miDebuggerServerAddress": "127.0.0.1:1234",
+      "program": "${workspaceRoot}/build/vmlinux",
+      "args": [
+        "-ex", "b start_kernel"
+      ],
+      "stopAtEntry": true,
+      "cwd": "${workspaceRoot}",
+      "environment": [],
+      "externalConsole": false,
+      "logging": {
+        "engineLogging":false
+      },
+      "MIMode": "gdb",
+      "preLaunchTask": "Debug linux in qemu",
+      "setupCommands": [
+        {
+          "description": "为 gdb 启用整齐打印",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}

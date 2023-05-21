@@ -1,0 +1,127 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build and Generate compile_commands.json",
+            "type": "shell",
+            "command": "",
+            "problemMatcher": [],
+            "dependsOn": [
+                "Make: build kernel",
+                "Generate compile_commands.json"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Make: build kernel",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "O=./build",
+                "bzImage",
+                "-j8",
+                "ARCH=arm",
+                "CROSS_COMPILE=arm-linux-gnueabi-"
+            ]
+        },
+        {
+            "label": "Generate compile_commands.json",
+            "type": "process",
+            "command": "python",
+            "args": [
+                "${workspaceRoot}/.vscode/generate_compdb.py",
+                "-O", "./build",
+                "./build"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Run linux in qemu",
+            "type": "shell",
+            "command": "qemu-system-arm",
+            "args": [
+                "-M",
+                "vexpress-a9",
+                "-smp",
+                "4",
+                "-m",
+                "1024M",
+                "-kernel",
+                "build/arch/arm/boot/zImage",
+                "-append",
+                "\"rdinit=/linuxrc console=ttyAMA0 loglevel=8\"",
+                "-dtb",
+                "build/arch/arm/boot/dts/vexpress-v2p-ca9.dtb",
+                "-nographic"
+            ]
+        },
+        {
+            "label": "Debug linux in qemu",
+            "type": "shell",
+            "command": "qemu-system-arm",
+            "args": [
+                "-M",
+                "vexpress-a9",
+                "-smp",
+                "4",
+                "-m",
+                "1024M",
+                "-kernel",
+                "build/arch/arm/boot/zImage",
+                "-append",
+                "\"rdinit=/linuxrc console=ttyAMA0 loglevel=8\"",
+                "-dtb",
+                "build/arch/arm/boot/dts/vexpress-v2p-ca9.dtb",
+                "-nographic",
+                "-S",
+                "-s"
+            ],
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".",
+                        "endsPattern": "."
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Make: command",
+            "type": "shell",
+            "command": "make",
+            "options": {
+                "env": {
+                    "ARCH": "arm",
+                    "CROSS_COMPILE": "arm-linux-gnueabi-"
+                }
+            },
+            "args": [
+                "O=./build",
+                "${input:command}"
+            ]
+        },
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "command",
+            "description": "make命令"
+        }
+    ]
+}
